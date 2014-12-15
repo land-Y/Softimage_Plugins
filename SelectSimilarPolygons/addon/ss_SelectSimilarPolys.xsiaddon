@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<xsi_file type="Addon" xsi_version="10.1.62.0" syntax_version="1.0">
+   <AddonVersion>2.0</AddonVersion>
+   <Categories></Categories>
+   <Nature>Auxiliary</Nature>
+   <PlatForms></PlatForms>
+   <Title></Title>
+   <AuthorName>sshadows</AuthorName>
+   <AuthorEMail>sshumihin@gmail.com</AuthorEMail>
+   <Company></Company>
+   <URL>softimage.ru</URL>
+   <Language></Language>
+   <Summary></Summary>
+   <Description>1. Select polygon.
+2. Menu Select-&gt;Select Similar Polygons.
+3. If you need, tune treshold in the property page.</Description>
+   <Usage></Usage>
+   <Image></Image>
+   <InstallDir>ss_SelectSimilarPolys</InstallDir>
+   <DefaultDestination>5</DefaultDestination>
+   <AddonItem filename="netview_ss_SelectSimilarPolys.txt" type="Others" description="C:\Users\sshadows\Autodesk\Softimage_2012_SP1\Addons\ss_SelectSimilarPolys\netview_ss_SelectSimilarPolys.txt" mode="438" id="329">
+MTEzAAAAAAAAAAAAeNotyjEKg0AQBdBeyB3+AcyAsbdPEQh4AtGvLqwzyzpb
+7O0jxPq9TjAycnYki3UzlUfzEnyo5YbncIcxHCFOGd9/PK/ZC94rqhUoubTw
+ooRnnrvFBUHhO5GyJWavSNNG+QFDACY8
+</AddonItem>
+   <AddonItem filename="netview_ss_SelectSimilarPolys.xml" type="Others" description="C:\Users\sshadows\Autodesk\Softimage_2012_SP1\Addons\ss_SelectSimilarPolys\netview_ss_SelectSimilarPolys.xml" mode="438" id="330">
+NDY1AAAAAAAAAAAAeNpVkFtPwkAQhZ/trxj7anpDJZEsRYJoTECNQOIbWdul
+3WQvzV60/ffsphbwac5852T2ZNGs5Qx+iNJUimmYxWk4ywN0HUXwQgRR2JAS
+vjvYUN4w8rVePckCasIaomKAZUsK6xMbK+C9MJCNYZRO7seT2wfYbRc36V2a
+OpJl/obWNS7lr4Yock+0mu4PlBEwXUOm4bwspXgVBxmCd86N0jiLxyPXC3Qn
+DG73/8rmwRVauJKVVJToHCUXi7M+GDbPUnHvnLUzttQw4mA/HZhbU0v1hjnJ
+h54ouYCnyHKNKfMZy2lNxWPF3R4Xkg/xPuB7Sd5g0flSf8rB3ecq1/JgKMcV
+iZVFiSfOWGFRWcdc/CQd3ljOsfJHBuWP6D7YzwAlw2fmwREg6JcA
+</AddonItem>
+   <AddonItem filename="ss_SelectSimilarPolys.js" destination="\Application\Plugins" type="Others" description="C:\Users\sshadows\Autodesk\Softimage_2012_SP1\Addons\ss_SelectSimilarPolys\Application\Plugins\ss_SelectSimilarPolys.js" mode="438" id="331">
+MjU4OQAAAAAAAAAAeNq1Vv9v2kYU/5lI/A+v/qEyghmTrpoUWmkU0gotWVBo
+kklVFR32A66z7+jdOQ2b8r/v3Z1tnMxZpWmTAPve18/7egyHoPXtEjNMzJLn
+PGNqIbO97h4NhzAX3HCWQSJThA0KVMxgCqs9LOXa8JxtEJazX+CG/8FU6lRO
+7zEprNANfS8SA6/hOD55/dPJ8Su4+jjtxz/GMVFGI2tF6y1L5TfvrHvUPVoX
+IjFcCvhtOT+TLF1kxYaLELi4VbiBXvfoz+5Rx5+iSWG2UsFbCCo7wfjA/ZXl
+6Hkt0TUFT3PGs9JKkfMtFz9vLClKZB4cxK4uz5xQFXikisBCrvjn7IsDM2qY
+PufC0eJxU/ISN1wbVOcoilBz+zifLjzId9IYmc9nMHgG+ADWLNPYs16GQ2+K
+qkI5mwuNyr4sJBcGfoBUgpAGFObyDsFsuYaMC3RQFJpCCTCqQLL08DT3VyJ7
+Nvt3TAH59EybZQvlEYEibhTBsie7XcYTBzM6k5tz1JpSGD7W6kMAW6ZhhSig
+cAgwjYKB5teoVrIM+jvgW7N2ezvDNYUeEqzE3JtGJHKh0XjAlhMtZaES9PVy
+vGiSpgumCCCV7DgMPirUW5mlVAnN3xNIM4A4GtmfeACjOHZPf6jfNF+g0lQq
+tspcGP8qCh/EGdvLwrSF4jltwXRKXjTNkKmwROCU5gZzUqmfpSBF/UHJYudk
+Oy1cSwmhmY7Dew/GnRatU9G02Z6C7ybB7qS24O0YtYduORbxlGXZiiW/l8i9
+bSiNg7W+kcJOWHAhWiav97cqtYlV0JrTIkmMoHlhUgxjlwDPKlZTmWUDkPZR
+5sWoPf1a9U4lYNNIBiJ3zHdSoDBjJ1BzvWBUs+3JO7SCBL1DE5hsQ+xVxmkU
+83IUq3SQJux8Kl64Fr9hSnCxcYjLglXm7Epbh7L0WtDSeUH77z+yXs+nwrWm
++ETh01MTmjtlQmHe4TKhK+pSShMtlNzZZYg6ctUOHhUqqPqPryGsPXgXNfqD
+nye2bScVmrZ06WTfar3U/3+2R5V9+tDW35Hvi9UXCL3LgYtjAM/E7JLqYNim
+8SBrhLqBsBdds8wNJl00zVraep/Qru77nqVujuYixftDU1s0jY4k89SOr2ZE
+JkC11AeUbjsQuSzgQhFY+xJZHtIYjKGUZsbYm9QpEdfMp6cTIvEV/dl4r2Ru
+b5AwKId4opAFNZy7FVt+LQiDayP8BtfvJkqxfeiMRjNmmDtDLzLScxoLUn+l
+W5wUD1Y+PQ77M121PqHjgwq7/2eVfkNlLVVo1fjbeAwc3jT0ogzFxmyJ3O/X
+nUkz50E1JT/xz/Dy5RPCGw/FanrVTr2DbGOGPpvV5gt5z7eu7a4H6pWHvwDV
+ty0w
+</AddonItem>
+</xsi_file>
