@@ -1,0 +1,27 @@
+Version 1.10
+1. Fix minor bug's.
+2. Added tab for some info's.
+3. Added checkbox "Replace Objects" in the import section. It's just replace objects in scene by newly imported objects.
+4. Now you can to import multiply objects at the same time.
+
+
+Version 1.9
+1. Added checkbox in Import for replace old texture_projection by newly imported.
+Note: We are replace the first TP only. Becase is the term of OBJ file format.
+
+Version 1.8
+1. Replace a piece of options to XSI Preferences-> Custom->.
+2. Added two checkboxes to import menu.
+
+Version 1.7
+1. Remove Polymesh Filter on Menu, because...
+2.Added export list of edges for Cut. Just select edges for cutting, and press Export.
+
+Version 1.6
+1.Fixed CopyUV.
+
+Version 1.5
+Whats new:
+1. Added Temp Folder control. You can to change a temp folder by yourself.
+2. In  "Load Options" added TYPE attributes: POLY, SUBD. Now you can tuning texture projection for subdivided object.
+3. Added buttons on PPG: Export, Import and Exit. Now you can to close Headus Application from Softimage.

@@ -1,15 +1,20 @@
 // HeadusUVLayoutPlugin by Svyatoslav Shumikhin
+// 26 june 2015
+// email: sshumihin@gmail.com
+//
 
 var tmpObjName = "tmp.obj";
 var tmpCMDName = "tmp.cmd";
+var tmpObjImportName = "tmp.out";
 var uvApp = "uvlayout.exe";
+var app = Application;
 
 function XSILoadPlugin( in_reg ){
 	in_reg.Author = "Svyatoslav Shumikhin";
 	in_reg.Name = "ss_HeadusUVLayout";
 	in_reg.URL = "http://www.softimage.ru";
 	in_reg.Major = 1;
-	in_reg.Minor = 9;
+	in_reg.Minor = 10;
 	
 	//RegistrationInsertionPoint - do not remove this line	
 	in_reg.RegisterProperty("HeadusUVTools");
@@ -36,46 +41,67 @@ function XSIUnloadPlugin( in_reg ){
 	var strPluginName;
 	strPluginName = in_reg.Name;
 	
-	Application.LogMessage(strPluginName + " has been unloaded.",siVerbose);
+	app.LogMessage(strPluginName + " has been unloaded.",siVerbose);
 	return true;
 }
 
 function HeadusUVTools_Define( in_ctxt )
 {
 	var oPSet = in_ctxt.Source;
+	oPSet.AddParameter2( "LaunchUVL", siBool, 1, 0, 1,	null, null,	0, 0, "Launch UVLayout");
 	oPSet.AddParameter2("Type", siInt4, 0, 0, 2,	null, null,	0, 0, "Type");
 	oPSet.AddParameter2("UVs", siInt4, 0, 0, 2,	null, null,	0, 0, "UVs");
-	oPSet.AddParameter2( "Weld", siBool, 0);
-	oPSet.AddParameter2( "Clean", siBool, 0);
-	oPSet.AddParameter2( "Detach", siBool, 0);
-	oPSet.AddParameter2( "UVFix", siBool, 0, 0, 1,	null, null,	0, 0, "Fix UV");
-	oPSet.AddParameter2( "UVReplace", siBool, 0, 0, 1,	null, null,	0, 0, "UV Replace");
-	oPSet.AddParameter2( "DontDestroyImportedObj", siBool, 0, 0, 1,	null, null,	0, 0, "Dont Destroy Imported Object");
+	oPSet.AddParameter2( "Weld", siBool, 0, 0, 1,	null, null,	0, 0, "Weld");
+	oPSet.AddParameter2( "Clean", siBool, 0, 0, 1,	null, null,	0, 0, "Clean");
+	oPSet.AddParameter2( "Detach", siBool, 0, 0, 1,	null, null,	0, 0, "Detach");
+	oPSet.AddParameter2( "ReplaceObj", siBool, 0, 0, 1,	null, null,	0, 0, "Replace Objects (try)");
+	oPSet.AddParameter2( "UVFix", siBool, 1, 0, 1,	null, null,	0, 0, "Fix UV");
+	oPSet.AddParameter2( "UVReplace", siBool, 1, 0, 1,	null, null,	0, 0, "Replace UV");
+	oPSet.AddParameter2( "DontDestroyImportedObj", siBool, 0, 0, 1,	null, null,	0, 0, "Don`t Destroy Copy");
+	oPSet.AddParameter2( "StaticBitmapControl1", siString );
+	oPSet.AddParameter2( "StaticBitmapControl2", siString );
 
 	return true;
 }
 
-function HeadusUVTools_DefineLayout( in_ctxt )
+function HeadusUVTools_OnInit( )
 {
-	var oPPGLayout = in_ctxt.Source;
+	//Application.LogMessage ("StructureExplorer_OnInit called",siVerbose);
+	HeadusUVTools_RebuildLayout();
+}
+
+
+function HeadusUVTools_RebuildLayout()
+{
+	//var oPPGLayout = in_ctxt.Source;
+	var oPPGLayout = PPG.PPGLayout;
+	var oItem;
 	oPPGLayout.Clear();
 
+	oPPGLayout.AddTab("General");
 	oPPGLayout.AddGroup("Export Options");
-	var oItem = oPPGLayout.AddItem( "Type" ); 
+	oPPGLayout.AddItem( "LaunchUVL");
+	oItem = oPPGLayout.AddItem( "Type" ); 
 	oItem.UIItems = Array( "Poly", 0, "SUBD", 1); 
 	oItem.Type = siControlCombo;
 	oItem = oPPGLayout.AddItem( "UVs" ); 
 	oItem.UIItems = Array( "New", 0, "Edit", 1); 
 	oItem.Type = siControlCombo;
-	oPPGLayout.AddItem( "Weld", "Weld");
-	oPPGLayout.AddItem( "Clean", "Clean");
-	oPPGLayout.AddItem( "Detach", "Detach");
+	oPPGLayout.AddItem( "Weld");
+	oPPGLayout.AddItem( "Clean");
+	oPPGLayout.AddItem( "Detach");
 	oPPGLayout.EndGroup();
 
 	oPPGLayout.AddGroup("Import Options");
-	oPPGLayout.AddItem( "DontDestroyImportedObj", "Don`t Destroy Copy");
-	oPPGLayout.AddItem( "UVFix", "UV fix");
-	oPPGLayout.AddItem( "UVReplace");
+	oPPGLayout.AddStaticText("If you want to import multiply objects \r\nyou should to select scene objects in right order!");
+	oPPGLayout.AddItem( "ReplaceObj");
+	if(!PPG.ReplaceObj.Value)
+	{
+		oPPGLayout.AddItem( "DontDestroyImportedObj");
+		oPPGLayout.AddItem( "UVReplace");		
+		oPPGLayout.AddItem( "UVFix");	
+	}
+	
 	oPPGLayout.EndGroup();
 
 	oItem = oPPGLayout.AddButton("ExportHeadus", "Export Object");
@@ -84,6 +110,18 @@ function HeadusUVTools_DefineLayout( in_ctxt )
 	oItem.SetAttribute(siUICX,250);
 	oItem = oPPGLayout.AddButton("ExitUVLayout", "Exit UVLayout");
 	oItem.SetAttribute(siUICX,250);
+	
+	oPPGLayout.AddTab("Info");
+	oPPGLayout.AddGroup( "Send Cut Edges to UVL" );
+	oItem = oPPGLayout.AddItem( "StaticBitmapControl1", "Select edges for cutting and click Export button...", siControlBitmap ) ;
+	var logoPath = XSIUtils.BuildPath(app.InstallationPath(siUserAddonPath),"ss_HeadusUVLayout","Application", "Logo");
+	oItem.SetAttribute(siUIFilePath, logoPath + "\\xsi.bmp")
+	
+	oItem = oPPGLayout.AddItem( "StaticBitmapControl2", "And that's all!", siControlBitmap ) ;
+	oItem.SetAttribute(siUIFilePath, logoPath + "\\uvl.bmp")
+	oPPGLayout.EndGroup() ;
+	
+	PPG.Refresh();
 
 	return true;
 }
@@ -119,7 +157,7 @@ function ExportHeadus_Execute( )
 	var oParam = oPrefsGlobal.Parameters.Item("HeadusLocation");
 	var uvAppFullPath = XSIUtils.BuildPath(oParam.Value, uvApp);
 	
-	LogMessage(uvAppFullPath +" "+ oArgs);
+	app.LogMessage(uvAppFullPath +" "+ oArgs);
 	
 	var fso = new ActiveXObject('Scripting.FileSystemObject');	
 	if (!fso.FileExists(uvAppFullPath))
@@ -132,13 +170,14 @@ function ExportHeadus_Execute( )
 	if( !fso.FolderExists(sTempPath))
 	{
 		sTempPath = fso.CreateFolder(sTempPath);
-		LogMessage(sTempPath + " <-- Created", siVerbose);
+		app.LogMessage(sTempPath + " <-- Created", siVerbose);
 	}
 	
 	
 	var oArgs = "-plugin";
 	oArgs += (oPrefs.Parameters.Item("Type").Value == 0)?",Poly":",SUBD";
-	oArgs += (oPrefs.Parameters.Item("UVs").Value == 0)?",New":",Edit";
+	var isEditUV = oPrefs.Parameters.Item("UVs").Value;
+	oArgs += (isEditUV == 0)?",New":",Edit";
 	if(oPrefs.Parameters.Item("Weld").Value) oArgs += ",Weld";
 	if(oPrefs.Parameters.Item("Clean").Value) oArgs += ",Clean";
 	if(oPrefs.Parameters.Item("Detach").Value) oArgs += ",Detach";
@@ -148,24 +187,29 @@ function ExportHeadus_Execute( )
 	{	
 		//send to exit
 		var exitPath = XSIUtils.BuildPath(sTempPath, tmpCMDName);
-		LogMessage("Exit UVLayout: " + exitPath);
+		app.LogMessage("Exit UVLayout: " + exitPath);
 		
 		ExitUVLayout(uvApp, exitPath);
-		Application.LogMessage("Sending data to UVLayout...please wait", siInfo);
+		app.LogMessage("Sending data to UVLayout...please wait", siInfo);
 	}
 
 	// export the obj to prefs.Default_Obj_Name
 	var objPath = XSIUtils.BuildPath(sTempPath, tmpObjName);
-	Application.ObjExport(objPath, null, null, null, null, null, null, null, null, null, 0, false, false, null, false);
-						
-	// boot up uvlayout
-	Application.LogMessage("Starting UVLayout...please wait", siInfo);
-	UVLayoutLaunch(uvAppFullPath, oArgs, objPath);
-	
+	//ObjExport( FileName, FilePerObject, FilePerFrame, StartFrame, EndFrame, StepFrame, Polymsh, Surfmsh, Crvlist, Cloud, CoordinateSystem, Tesselation, Material, UV, UserNormal );
+	app.ObjExport(objPath, 0, null, null, null, null, null, null, null, null, 0, false, true, isEditUV, false);
+
+	//Write cut edges if we are export a single objecti
 	var oSel = Selection(0);
 	if(oSel.Type == "edgeSubComponent")
 	{
 		WriteCutEdges(oPrefs);
+	}
+
+	if(oPrefs.Parameters.Item("LaunchUVL").Value)
+	{
+		// boot up uvlayout
+		app.LogMessage("Starting UVLayout...please wait", siInfo);
+		UVLayoutLaunch(uvAppFullPath, oArgs, objPath);	
 	}
 	
 	return true;
@@ -189,50 +233,81 @@ function ImportHeadus_Execute( )
 {
 	if(Selection.Count == 0)
 	{
-		Application.LogMessage("Please, select object for replace!", siWarning);
+		app.LogMessage("Please, select object('s) for import!", siWarning);
 		return false;
-	}
-	
-	var oObject = Selection(0);
-	if(Selection(0).Type != "polymsh")
-	{
-		oObject = oObject.SubComponent.Parent3DObject;
 	}
 	
 	var oPrefsGlobal = CheckGlobalPrefs();
 	var oPrefs = CheckPrefs();
 	var sTempPath = oPrefsGlobal.Parameters.Item("TempFolder").Value;
-	var uvImportPath = XSIUtils.BuildPath(sTempPath, "tmp.out");
+	var uvImportPath = XSIUtils.BuildPath(sTempPath, tmpObjImportName);
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 	
-	if (fso.FileExists(uvImportPath))
+	if (!fso.FileExists(uvImportPath))
 	{
-		var iObj = Application.ObjImport(uvImportPath, 1, 0, false, true, false, false)(0);
-		Application.LogMessage(oObject.Name + " import Successful", siInfo);	
-	
-		CopyUVs(oPrefs, iObj, oObject );
-		if(!oPrefs.Parameters.Item("DontDestroyImportedObj").Value)
-		{
-			Application.DeleteObj( iObj );
-		}
-		if(oPrefs.Parameters.Item("UVfix").Value)
-		{
-			FixUVs( oObject );
-		}
-		Application.SelectObj( oObject );
-	}
-	else
-	{
-		Application.LogMessage("File not found!", siWarning);
+		app.LogMessage("File " + uvImportPath + " not found!", siWarning);
 		return false;
 	}
+
+	//ObjImport( FileName, Group, hrc, Material, UV, UserNormal, UVwrapping );
+	var iObjects = app.ObjImport(uvImportPath, 1, 0, true, true, false, false);
+	var sObjects = app.Selection;
+	
+	if(iObjects.Count != sObjects.Count)
+	{
+		app.LogMessage("Selected objects count is not equal imported objects count!", siWarning);
+		return false;
+	}
+	
+	var isReplaceObj = oPrefs.Parameters.Item("ReplaceObj").Value;
+	var isDontDestroy = oPrefs.Parameters.Item("DontDestroyImportedObj").Value;
+	var isFixUV = oPrefs.Parameters.Item("UVFix").Value;
+	var oColl = new ActiveXObject( "XSI.Collection" );
+	
+	for(var i=0; i < iObjects.Count; i++)
+	{
+		//app.LogMessage("Name: " + iObjects(i).Name);
+		if(isReplaceObj)
+		{
+			var obj = sObjects(i);
+			app.LogMessage("Name: " + obj.Name);
+			var name = obj.Name;
+			obj.Name += "_del";
+			
+			//app.DeleteObj( obj );
+			oColl.Add(obj);
+			iObjects(i).Name = name;
+		}
+		else
+		{
+			CopyUVs(oPrefs, iObjects(i), sObjects(i) );
+			if(!isDontDestroy)
+			{				
+				//app.DeleteObj( iObjects(i) );
+				oColl.Add( iObjects(i) );
+			}
+			
+			if(isFixUV)
+			{
+				FixUVs( sObjects(i) );
+			}
+		}		
+	}
+	
+	for(var i=0; i < oColl.Count; i++)
+	{
+		app.DeleteObj(oColl(i));
+	}
+	
+	app.LogMessage("Import is done!", siInfo);
+
 	return true;
 }
 
 function UVLayoutLaunch(uvApp, oArgs, FileSpec)
 {
 	var cmd = uvApp + " " + oArgs + " " + FileSpec;
-	Logmessage("This command line will be executed:\n" + cmd)
+	app.Logmessage("This command line will be executed:\n" + cmd)
 	XSIUtils.LaunchProcess( cmd, false) ;
 	
 	return true;
@@ -282,7 +357,7 @@ function CopyUVs(oPrefs, oSrc, oDest )
 
 	if ( oSampleSrc == null)
 	{
-		Application.LogMessage( "No UVs on source object " + oSrc.Name );
+		app.LogMessage( "No UVs on source object " + oSrc.Name );
 		return false;
 	}
 
@@ -304,12 +379,16 @@ function CopyUVs(oPrefs, oSrc, oDest )
 	if ( oSampleDest == null)
 	{	
 		//oSampleDest = Application.SICreateCluster( siSampledPointCluster, "Texture_Coordinates_UVL", oDest, 1+4 )(0);
-		oSampleDest  = oDest.ActivePrimitive.Geometry.AddCluster(  siSampledPointCluster, "Texture_Coordinates_UVL");		
+		oSampleDest  = oDest.ActivePrimitive.Geometry.AddCluster(  siSampledPointCluster, "Texture_Coordinates_UVL");
 	}
 	
 	if(oPrefs.Parameters.Item("UVReplace").Value)
 	{
 		oSampleDestUV = oSampleDest.LocalProperties(0);
+		if(oSampleDestUV == null)
+		{
+			oSampleDestUV = oSampleDest.AddProperty("Texture Projection", false, "UVL_Property");
+		}
 	}
 	else
 	{
@@ -318,8 +397,8 @@ function CopyUVs(oPrefs, oSrc, oDest )
 	
 	var oSrcUV = oSampleSrc.LocalProperties(0);
 	//Application.CopyPaste( oSrcUV, "", oSampleDestUV );
-	Application.CopyUVW(oSrcUV);
-	Application.PasteUVW(oSampleDestUV);
+	app.CopyUVW(oSrcUV);
+	app.PasteUVW(oSampleDestUV);
 }
 
 function FixUVs( oObj )
@@ -377,11 +456,17 @@ function FixUVs( oObj )
 	oUVspace.Elements.Array = aFixed;
 }
 
+function HeadusUVTools_ReplaceObj_OnChanged()
+{
+	HeadusUVTools_RebuildLayout();
+}
+
+
 function HeadusUVTools_ExportHeadus_OnClicked()
 {
 	if(Selection.Item(0) == null)
 	{
-		LogMessage("Please, Select Object for Export!");
+		app.LogMessage("Please, Select Object for Export!");
 		return false;
 	}
 	
@@ -399,7 +484,10 @@ function HeadusUVTools_ImportHeadus_OnClicked()
 
 function HeadusUVTools_ExitUVLayout_OnClicked()
 {
-	sTempPath = PPG.TempFolder.Value;
+	var oPrefsGlobal = CheckGlobalPrefsFirst();
+	if(oPrefsGlobal == null) return false;
+	
+	sTempPath = oPrefsGlobal.Parameters.Item("TempFolder").Value;
 	var cmdPath = XSIUtils.BuildPath(sTempPath, tmpCMDName);
 	ExitUVLayout(uvApp, cmdPath);
 	
@@ -407,6 +495,8 @@ function HeadusUVTools_ExitUVLayout_OnClicked()
 }
 function ExitUVLayout(uvApp, cmdPath)
 {
+	if(!layoutProcessAlreadyRunning(uvApp)) return false;
+	
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 	var tf = fso.CreateTextFile(cmdPath, true);
 	tf.WriteLine("exit");
@@ -417,7 +507,7 @@ function ExitUVLayout(uvApp, cmdPath)
 		continue;
 	}
 	
-	LogMessage("UVLayout is Closed!");
+	app.LogMessage("UVLayout is Closed!");
 	
 	return true;
 }
@@ -430,7 +520,7 @@ function WriteCMDFile(cutPath)
 	tf.WriteLine("cut " + cutPath);
 	tf.Close();
 	
-	LogMessage("CMD file is writed!");
+	app.LogMessage("CMD file is writed!");
 	
 	return true;
 }
@@ -463,7 +553,7 @@ function WriteCutEdges(oPrefs)
 			sEdges += oComp(j).Index + ",";
 		}
 	}
-	LogMessage("Edges: " + sEdges);
+	app.LogMessage("Edges: " + sEdges);
 	
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 	var cutPath = XSIUtils.BuildPath(sTempPath, fileEdges);
