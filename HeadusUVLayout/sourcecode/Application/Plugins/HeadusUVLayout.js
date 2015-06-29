@@ -13,8 +13,9 @@ function XSILoadPlugin( in_reg ){
 	in_reg.Author = "Svyatoslav Shumikhin";
 	in_reg.Name = "ss_HeadusUVLayout";
 	in_reg.URL = "http://www.softimage.ru";
+	in_reg.Email = "sshumihin@gmail.com";
 	in_reg.Major = 1;
-	in_reg.Minor = 10;
+	in_reg.Minor = 11;
 	
 	//RegistrationInsertionPoint - do not remove this line	
 	in_reg.RegisterProperty("HeadusUVTools");
@@ -114,7 +115,12 @@ function HeadusUVTools_RebuildLayout()
 	oPPGLayout.AddTab("Info");
 	oPPGLayout.AddGroup( "Send Cut Edges to UVL" );
 	oItem = oPPGLayout.AddItem( "StaticBitmapControl1", "Select edges for cutting and click Export button...", siControlBitmap ) ;
-	var logoPath = XSIUtils.BuildPath(app.InstallationPath(siUserAddonPath),"ss_HeadusUVLayout","Application", "Logo");
+
+	var p = app.Plugins("ss_HeadusUVLayout");
+	var fso = XSIFactory.CreateActiveXObject("Scripting.FileSystemObject");
+	var pluginfolder = fso.GetParentFolderName( p.OriginPath );
+	var logoPath = fso.BuildPath( pluginfolder, "Logo" );
+	
 	oItem.SetAttribute(siUIFilePath, logoPath + "\\xsi.bmp")
 	
 	oItem = oPPGLayout.AddItem( "StaticBitmapControl2", "And that's all!", siControlBitmap ) ;
