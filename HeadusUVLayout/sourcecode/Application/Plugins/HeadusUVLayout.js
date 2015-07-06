@@ -15,7 +15,7 @@ function XSILoadPlugin( in_reg ){
 	in_reg.URL = "http://www.softimage.ru";
 	in_reg.Email = "sshumihin@gmail.com";
 	in_reg.Major = 1;
-	in_reg.Minor = 11;
+	in_reg.Minor = 12;
 	
 	//RegistrationInsertionPoint - do not remove this line	
 	in_reg.RegisterProperty("HeadusUVTools");
@@ -255,13 +255,23 @@ function ImportHeadus_Execute( )
 		return false;
 	}
 
+	//ShowSelected();
+	var sObjects = new ActiveXObject( "XSI.Collection" );
+	var oSel = app.Selection;	
+	for(var i=0; i < oSel.Count; i++)
+	{
+		sObjects.Add(oSel(i));
+	}
+	
 	//ObjImport( FileName, Group, hrc, Material, UV, UserNormal, UVwrapping );
 	var iObjects = app.ObjImport(uvImportPath, 1, 0, true, true, false, false);
-	var sObjects = app.Selection;
+	//ShowSelected();
 	
 	if(iObjects.Count != sObjects.Count)
 	{
-		app.LogMessage("Selected objects count is not equal imported objects count!", siWarning);
+		app.LogMessage("Selected objects count is not equal imported objects count!\nSelected: "
+		+ sObjects.Count + ", Imported: " + iObjects.Count, siWarning);
+		
 		return false;
 	}
 	
@@ -308,6 +318,15 @@ function ImportHeadus_Execute( )
 	app.LogMessage("Import is done!", siInfo);
 
 	return true;
+}
+
+function ShowSelected()
+{
+	var oSel = app.Selection;
+	for(var i =0; i < oSel.Count; i++)
+	{
+		app.LogMessage("Selected: " + i + ", " + oSel(i).Name);
+	}
 }
 
 function UVLayoutLaunch(uvApp, oArgs, FileSpec)
