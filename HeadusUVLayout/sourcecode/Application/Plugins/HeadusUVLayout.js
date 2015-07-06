@@ -15,7 +15,7 @@ function XSILoadPlugin( in_reg ){
 	in_reg.URL = "http://www.softimage.ru";
 	in_reg.Email = "sshumihin@gmail.com";
 	in_reg.Major = 1;
-	in_reg.Minor = 12;
+	in_reg.Minor = 13;
 	
 	//RegistrationInsertionPoint - do not remove this line	
 	in_reg.RegisterProperty("HeadusUVTools");
@@ -94,7 +94,7 @@ function HeadusUVTools_RebuildLayout()
 	oPPGLayout.EndGroup();
 
 	oPPGLayout.AddGroup("Import Options");
-	oPPGLayout.AddStaticText("If you want to import multiply objects \r\nyou should to select scene objects in right order!");
+	oPPGLayout.AddStaticText("If you want to import multiple objects \r\nyou should to select scene objects in right order!");
 	oPPGLayout.AddItem( "ReplaceObj");
 	if(!PPG.ReplaceObj.Value)
 	{
@@ -257,11 +257,7 @@ function ImportHeadus_Execute( )
 
 	//ShowSelected();
 	var sObjects = new ActiveXObject( "XSI.Collection" );
-	var oSel = app.Selection;	
-	for(var i=0; i < oSel.Count; i++)
-	{
-		sObjects.Add(oSel(i));
-	}
+	sObjects.AddItems(app.Selection);
 	
 	//ObjImport( FileName, Group, hrc, Material, UV, UserNormal, UVwrapping );
 	var iObjects = app.ObjImport(uvImportPath, 1, 0, true, true, false, false);
@@ -278,7 +274,8 @@ function ImportHeadus_Execute( )
 	var isReplaceObj = oPrefs.Parameters.Item("ReplaceObj").Value;
 	var isDontDestroy = oPrefs.Parameters.Item("DontDestroyImportedObj").Value;
 	var isFixUV = oPrefs.Parameters.Item("UVFix").Value;
-	var oColl = new ActiveXObject( "XSI.Collection" );
+	var oCollDelete = new ActiveXObject( "XSI.Collection" );
+	var oSelectionNew = new ActiveXObject( "XSI.Collection" );
 	
 	for(var i=0; i < iObjects.Count; i++)
 	{
@@ -286,34 +283,38 @@ function ImportHeadus_Execute( )
 		if(isReplaceObj)
 		{
 			var obj = sObjects(i);
-			app.LogMessage("Name: " + obj.Name);
+			//app.LogMessage("Name: " + obj.Name);
 			var name = obj.Name;
 			obj.Name += "_del";
 			
-			//app.DeleteObj( obj );
-			oColl.Add(obj);
+			oCollDelete.Add(obj);
 			iObjects(i).Name = name;
+			oSelectionNew.Add(iObjects(i));
 		}
 		else
 		{
 			CopyUVs(oPrefs, iObjects(i), sObjects(i) );
 			if(!isDontDestroy)
 			{				
-				//app.DeleteObj( iObjects(i) );
-				oColl.Add( iObjects(i) );
+				oCollDelete.Add( iObjects(i) );
 			}
 			
 			if(isFixUV)
 			{
 				FixUVs( sObjects(i) );
 			}
+			
+			oSelectionNew.Add(sObjects(i));
 		}		
 	}
 	
-	for(var i=0; i < oColl.Count; i++)
+	for(var i=0; i < oCollDelete.Count; i++)
 	{
-		app.DeleteObj(oColl(i));
+		app.DeleteObj(oCollDelete(i));
 	}
+	
+	app.Selection.Clear();
+	app.AddToSelection(oSelectionNew);
 	
 	app.LogMessage("Import is done!", siInfo);
 

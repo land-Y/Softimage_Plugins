@@ -1,3 +1,6 @@
+Version 1.13
+1. Selection doesn't reset after import.
+
 Version 1.12
 1. Fix selection on import.
 
