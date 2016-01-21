@@ -1,0 +1,5 @@
+Export plugin Softimage to Mitsuba renderer.
+v1.0
+Known issue:
+1. Particle Cloud not supported.
+2. Multimaterial not supported.
